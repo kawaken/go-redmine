@@ -105,6 +105,33 @@ func (c *client) Issue(id int) (*Issue, error) {
 	return &r.Issue, nil
 }
 
+func (c *client) IssueIncludeJournals(id int) (*Issue, error) {
+	res, err := c.Get(c.endpoint + "/issues/" + strconv.Itoa(id) + ".json?key=" + c.apikey + "&include=journals")
+	if res.StatusCode == 404 {
+		return nil, errors.New("Not Found")
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	decoder := json.NewDecoder(res.Body)
+	var r issueRequest
+	if res.StatusCode != 200 {
+		var er errorsResult
+		err = decoder.Decode(&er)
+		if err == nil {
+			err = errors.New(strings.Join(er.Errors, "\n"))
+		}
+	} else {
+		err = decoder.Decode(&r)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &r.Issue, nil
+}
+
 func (c *client) IssuesByQuery(query_id int) ([]Issue, error) {
 	res, err := http.Get(c.endpoint + "/issues.json?query_id=" + strconv.Itoa(query_id) + "&key=" + c.apikey)
 	if err != nil {
