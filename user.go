@@ -24,6 +24,7 @@ type User struct {
 	CreatedOn   string       `json:"created_on"`
 	LatLoginOn  string       `json:"last_login_on"`
 	Memberships []Membership `json:"memberships"`
+	Name        string       `json:"name"` // this field is required by journal.
 }
 
 func (c *client) Users() ([]User, error) {
